@@ -1,0 +1,59 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.elem{
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+#session-box {
+    position: absolute;
+    /* background-color: bisque; */
+    display: flex;
+    flex-direction: column;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    align-items: center;
+}
+
+#label {
+    font-size: 35px;
+    font-weight: 700;
+    white-space: nowrap;
+    order: 1;
+}
+#session-id{
+    height: 30px;
+    order: 2;
+    width: 100%;
+    border: 1px solid #ddd;
+    outline: none;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+#create-session-btn{
+    order: 3;
+    width: 50%;
+    height: 30px;
+    background-color: #000814;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    outline: none;
+}
+
+#create-session-btn:active{
+    background-color: rgb(0, 44, 167);
+}
