@@ -17,7 +17,7 @@
             <div id="create-session-btn">Create</div>
         </div>
         <div class="elem" id="label2">Session</div>
-        <input class="elem" type="text" onkeyup ="valueChanged(this)" onfocus="this.placeholder=''" onblur="this.placeholder='Example: abc-def-ghi'" id="session-id" placeholder="Example: abc-def-ghi">
+        <input class="elem" type="text" onkeyup="keyu(this)" onfocus="this.placeholder=''" onblur="this.placeholder='Example: abc-def-ghi'; if(this.value.length == 0){this.style.borderColor='#ddd';}" id="session-id" placeholder="Example: abc-def-ghi">
         <button class="elem" id="join-session-btn">Join</button>
     </div>
     <script src="script.js"></script>
