@@ -52,11 +52,30 @@ body {
     justify-content: center;
     align-items: center;
     outline: none;
+    overflow: hidden;
+}
+
+#create-session-btn #front{
+    position: relative;
+}
+
+#create-session-btn #back{
+    position: absolute;
+    /* background-color: #00369b; */
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    mix-blend-mode:color;
+}
+
+#create-session-btn #back #circle{
+    fill: #00369b;
 }
 
 #label2 {
     position: relative;
-    font-size: 35px;
+    font-size: 40px;
     font-weight: 900;
     white-space: nowrap;
     order: 2;
@@ -118,6 +137,6 @@ body {
 }
 
 #join-session-btn svg #back{
-    fill: #00a000;
+    fill: #004ba0;
     mix-blend-mode: screen;
 }

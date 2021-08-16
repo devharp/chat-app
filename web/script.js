@@ -51,8 +51,8 @@ function clickedJoin(event) {
         duration: 1000,
         update: function () {
             if (t.val < 200) {
-                join.back.setAttribute('cx', click.x);
-                join.back.setAttribute('cy', click.y);
+                /*join.back.setAttribute('cx', click.x);
+                join.back.setAttribute('cy', click.y);*/
                 join.back.setAttribute('r', t.val);
             }
             else{
@@ -63,4 +63,32 @@ function clickedJoin(event) {
 
 }
 
-
+let create = {
+    front: document.querySelector('#create-session-btn'),
+    back: document.querySelector('#create-session-btn #back'),
+    svg: document.querySelector('#create-session-btn #back svg'),
+    circle: document.querySelector('#create-session-btn #back svg #circle')
+};
+create.svg.setAttribute('width', create.back.offsetWidth);
+create.svg.setAttribute('height', create.back.offsetHeight);
+function clickedCreate(event){
+    let click = { x: event.offsetX, y: event.offsetY };
+    console.log(click);
+    create.circle.setAttribute('cx', click.x);
+    create.circle.setAttribute('cy', click.y);
+    let t = { val: -1 };
+    anime({
+        targets: t,
+        easing: 'linear',
+        val: 250,
+        duration: 1000,
+        update: function () {
+            if (t.val < 200) {
+                create.circle.setAttribute('r', t.val);
+            }
+            else{
+                create.circle.setAttribute('r', 0);
+            }
+        }
+    });
+}

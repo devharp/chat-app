@@ -14,7 +14,12 @@
     <div id="session-box">
         <div class="elem" id="label">
             <div>Join or </div>
-            <div id="create-session-btn">Create</div>
+            <div id="create-session-btn">
+                <div id='front'>Create</div>
+                <div id="back" onclick="clickedCreate(event)"><svg xmlns="http://www.w3.org/svg">
+                    <circle id="circle" />
+                </svg></div>
+            </div>
         </div>
         <div class="elem" id="label2">Session</div>
         <input class="elem" type="text" onkeyup="keyu(this)" onfocus="this.placeholder=''"
