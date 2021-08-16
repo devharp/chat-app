@@ -1,7 +1,3 @@
-:root{
-    --session-id-once: 0;
-}
-
 * {
     padding: 0;
     margin: 0;
@@ -28,12 +24,13 @@ body {
     transform: translate(-50%, -50%);
     padding: 15px;
     align-items: center;
+    color: #001a41;
 }
 
 
 #label {
     position: relative;
-    font-size: 35px;
+    font-size: 40px;
     font-weight: 900;
     white-space: nowrap;
     order: 1;
@@ -52,17 +49,9 @@ body {
     top: -4px;
     color: white;
     cursor: pointer;
-    height: 50px;
-    width: 105px;
     justify-content: center;
     align-items: center;
     outline: none;
-}
-
-#create-session-btn:active{
-    background-color: #00a000de;
-    font-size: 28px;
-    padding: 10px;
 }
 
 #label2 {
@@ -109,8 +98,26 @@ body {
     color: white;
     outline: none;
     cursor: pointer;
+    display: grid;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
-#join-session-btn:active{
-    background-color: #001a41de;
+#join-session-btn #front{
+    position: relative;
+    top: 15px;
+    transform: translateY(-50%);
+    display: block;
+}
+
+#join-session-btn svg{
+    position: relative;
+    /* visibility: hidden; */
+}
+
+#join-session-btn svg #back{
+    fill: #00a000;
+    mix-blend-mode: screen;
 }

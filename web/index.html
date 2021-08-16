@@ -13,12 +13,19 @@
 <body>
     <div id="session-box">
         <div class="elem" id="label">
-            <div>Join or </div> 
+            <div>Join or </div>
             <div id="create-session-btn">Create</div>
         </div>
         <div class="elem" id="label2">Session</div>
-        <input class="elem" type="text" onkeyup="keyu(this)" onfocus="this.placeholder=''" onblur="this.placeholder='Example: abc-def-ghi'; if(this.value.length == 0){this.style.borderColor='#ddd';}" id="session-id" placeholder="Example: abc-def-ghi">
-        <button class="elem" id="join-session-btn">Join</button>
+        <input class="elem" type="text" onkeyup="keyu(this)" onfocus="this.placeholder=''"
+            onblur="this.placeholder='Example: abc-def-ghi'; if(this.value.length == 0){this.style.borderColor='#ddd';}"
+            id="session-id" placeholder="Example: abc-def-ghi">
+        <button onclick="clickedJoin(event)" class="elem" id="join-session-btn">
+            <div id="front">Join</div>
+            <svg xmlns="http://www.w3.org/svg" width="100" height="100">
+                <circle id="back" cx="0" cy="0" r="0" />
+            </svg>
+        </button>
     </div>
     <script src="script.js"></script>
 </body>
