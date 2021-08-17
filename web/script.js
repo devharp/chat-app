@@ -60,6 +60,7 @@ function clickedJoin(event) {
             }
         }
     });
+    send('Hello');
 
 }
 
@@ -91,4 +92,10 @@ function clickedCreate(event){
             }
         }
     });
+}
+
+function send(payload){
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', '/data');
+    xhr.send(payload);
 }
