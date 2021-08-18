@@ -1,8 +1,17 @@
 from flask import Flask, Response, request
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '0QbpOgiOpTZO302x'
 socketio = SocketIO(app)
+
+@socketio.on('connect')
+def test_connect(auth):
+    emit('message', {'data': 'Connected'})
+    print('Socket ID: ' + str(request.sid))
+
+@socketio.on('disconnect')
+def test_disconnect():
+    print('Client disconnected')
 
 @app.route('/')
 def home():
@@ -11,6 +20,10 @@ def home():
 @app.route('/script.js')
 def script():
     return Response(open('./web/script.js', 'rb'), mimetype='text/javascript')
+
+@app.route('/sock.js')
+def sock():
+    return Response(open('./web/sock.js', 'rb'), mimetype='text/javascript')
 
 @app.route('/style.css')
 def style():
