@@ -40,7 +40,6 @@ join.svg.setAttribute('height', String(join.e.clientHeight + 2) + 'px');
 console.log();
 function clickedJoin(event) {
     let click = { x: event.offsetX, y: event.offsetY };
-    console.log(click);
     join.back.setAttribute('cx', click.x);
     join.back.setAttribute('cy', click.y);
     let t = { val: -1 };
@@ -92,6 +91,7 @@ function clickedCreate(event){
             }
         }
     });
+    send('Hello');
 }
 
 function send(payload){

@@ -1,6 +1,8 @@
 from flask import Flask, Response, request
-
+from flask_socketio import SocketIO
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '0QbpOgiOpTZO302x'
+socketio = SocketIO(app)
 
 @app.route('/')
 def home():
@@ -29,7 +31,8 @@ def dataRecv():
         return "Error"
 
 def main():
-    app.run(port=8080)
+    # app.run(port=8080)
+    socketio.run(app, port=8080)
 
 if __name__ == "__main__":
     main()
