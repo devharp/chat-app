@@ -4,6 +4,9 @@ sock.on('connect', function () {
     sock.emit('my event', { data: 'I\'m connected!' });
 });
 
-sock.on('message',function(message){
-    console.log(message);
+sock.on('id',function(message){
+    // console.log(message);
+    sessionStorage.setItem('node', message.id.node);
+    sessionStorage.setItem('session', message.id.session);
+    console.log(sessionStorage.getItem('id'));
 });

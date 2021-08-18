@@ -1,12 +1,18 @@
 from flask import Flask, Response, request
 from flask_socketio import SocketIO, emit
+import sessions.id 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '0QbpOgiOpTZO302x'
 socketio = SocketIO(app)
 
 @socketio.on('connect')
 def test_connect(auth):
-    emit('message', {'data': 'Connected'})
+    node_id = sessions.id.genId(15)
+    session_id = sessions.id.genId(15)
+    emit('id', {'id': {
+        'node' : node_id,
+        'session' : session_id
+    }})
     print('Socket ID: ' + str(request.sid))
 
 @socketio.on('disconnect')
