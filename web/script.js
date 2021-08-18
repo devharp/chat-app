@@ -59,7 +59,8 @@ function clickedJoin(event) {
             }
         }
     });
-    send('Hello');
+    // send('Hello');
+    joinSession();
 
 }
 
@@ -91,7 +92,8 @@ function clickedCreate(event){
             }
         }
     });
-    send('Hello');
+    // send('Hello');
+    createSession();
 }
 
 function send(payload){

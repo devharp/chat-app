@@ -1,23 +1,18 @@
 from flask import Flask, Response, request
 from flask_socketio import SocketIO, emit
-import sessions.id 
+import sessions.id, sockethandler
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '0QbpOgiOpTZO302x'
 socketio = SocketIO(app)
 
-@socketio.on('connect')
-def test_connect(auth):
-    node_id = sessions.id.genId(15)
-    session_id = sessions.id.genId(15)
-    emit('id', {'id': {
-        'node' : node_id,
-        'session' : session_id
-    }})
-    print('Socket ID: ' + str(request.sid))
+@socketio.on('message')
+def receivePayload(data):
+    sockethandler.handleMessages(data, request)
 
-@socketio.on('disconnect')
-def test_disconnect():
-    print('Client disconnected')
+def send(payload, id):
+    emit('message', payload, sid=id)
+
+sockethandler.init(send)
 
 @app.route('/')
 def home():
@@ -51,7 +46,9 @@ def dataRecv():
 
 def main():
     # app.run(port=8080)
+    # sockethandler.init(s=socketio, e=emit, r=request)
     socketio.run(app, port=8080)
+
 
 if __name__ == "__main__":
     main()
