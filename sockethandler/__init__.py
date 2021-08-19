@@ -14,8 +14,9 @@ def ondisconnect(data=None, i=None):
     print('Client ' + str(i) + ' disconnected')
 
 def handleMessages(data=None, i=None):
-    global id
+    global id, ef
     id = i
+    manager.init(ef)
     manager.verifyRequest(data)
     # print('Client ' + str(i) + ' : ' + str(data))
     # send(data)
