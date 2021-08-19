@@ -6,7 +6,15 @@ sock.on('connect', function () {
 });
 
 sock.on('message', function (message) {
-    console.log('from server: ' + message);
+    // console.log('from server: ' + message);
+    switch(message.request){
+        case USER_REQUEST.CREATE:
+            console.log('session id: ' + message.session);
+            console.log('node id: ' + message.node);
+            break;
+        case USER_REQUEST.JOIN:
+            break;
+    }
 
 });
 
@@ -24,12 +32,10 @@ async function joinSession() {
     console.log('\'Join\' button pressed');
     let payload = {
         node: localStorage.getItem('node'),
-        session: localStorage.getItem('session'),
+        session: sessionid.text,
         request: USER_REQUEST.JOIN
     };
-    if(join_id_match){
-        sendMessage(payload);
-    }
+    sendMessage(payload);
     
 }
 

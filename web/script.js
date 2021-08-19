@@ -1,5 +1,5 @@
-let sessionid = document.querySelector('#session-box #session-id');
-let join_id_match = false;
+let sessionid = {e: document.querySelector('#session-box #session-id'), match: false, text: 0};
+
 let user_input = '';
 
 function keyu(e) {
@@ -8,23 +8,24 @@ function keyu(e) {
     if (match != null) {
         // Match found
         if (match[0] == user_input) {
-            sessionid.style.borderColor = '#00a000';
-            join_id_match = true;
+            sessionid.e.style.borderColor = '#00a000';
+            sessionid.match = true;
+            sessionid.text = user_input;
         }
         else {
-            sessionid.style.borderColor = 'crimson';
-            join_id_match = false;
+            sessionid.e.style.borderColor = 'crimson';
+            sessionid.match = false;
         }
 
     }
     else {
         // Match not found
-        sessionid.style.borderColor = 'crimson';
-        join_id_match = false;
+        sessionid.e.style.borderColor = 'crimson';
+        sessionid.match = false;
 
     }
-    sessionid.style.animation = 'key-down 0.3s infinite';
-    setTimeout(function () { sessionid.style.animation = 'key-down 0.3s 0'; }, 100);
+    sessionid.e.style.animation = 'key-down 0.1s infinite';
+    setTimeout(function () { sessionid.e.style.animation = 'key-down 0.1s 0'; }, 100);
 }
 
 let join = {
@@ -63,7 +64,9 @@ function clickedJoin(event) {
         }
     });
     // send('Hello');
-    joinSession();
+    if(sessionid.match){
+        joinSession();        
+    }
 
 }
 

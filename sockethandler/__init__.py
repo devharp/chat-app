@@ -17,7 +17,7 @@ def handleMessages(data=None, i=None):
     global id, ef
     id = i
     manager.init(ef)
-    manager.verifyRequest(data)
+    manager.verifyRequest(data,i)
     # print('Client ' + str(i) + ' : ' + str(data))
     # send(data)
 

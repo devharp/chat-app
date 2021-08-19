@@ -126,6 +126,7 @@ body {
 
 #join-session-btn #front{
     position: relative;
+    font-family: 'Roboto';
     top: 15px;
     transform: translateY(-50%);
     display: block;
