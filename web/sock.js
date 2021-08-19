@@ -1,18 +1,35 @@
+let USER_REQUEST = { CREATE: 1, JOIN: 2 };
 var sock = io();
 sock.on('connect', function () {
     console.log('connected to the server');
-    sock.emit('message', { data: 'I\'m connected!' });
+    // sock.emit('message', { data: 'I\'m connected!' });
 });
 
-sock.on('message',function(message){
+sock.on('message', function (message) {
     console.log('from server: ' + message);
-    
+
 });
 
-async function createSession(){
-
+async function createSession() {
+    let payload = {
+        node: localStorage.getItem('node'),
+        session: localStorage.getItem('session'),
+        request: USER_REQUEST.CREATE
+    };
+    console.log('\'Create\' button pressed');
+    sendMessage(payload);
 }
 
-async function joinSession(){
+async function joinSession() {
+    console.log('\'Join\' button pressed');
+    let payload = {
+        node: localStorage.getItem('node'),
+        session: localStorage.getItem('session'),
+        request: USER_REQUEST.JOIN
+    };
+    sendMessage(payload);
+}
 
+function sendMessage(payload){
+    sock.emit('message', payload);
 }

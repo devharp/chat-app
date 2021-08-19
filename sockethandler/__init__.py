@@ -1,5 +1,5 @@
 from flask_socketio import emit
-
+from sessions import manager
 
 id = None
 ef = None
@@ -7,12 +7,20 @@ def init(emit_func):
     global ef 
     ef = emit_func
 
-def handleMessages(data, i):
+def onconnect(data=None, i=None):
+    print('Client ' + str(i) + ' connected')
+
+def ondisconnect(data=None, i=None):
+    print('Client ' + str(i) + ' disconnected')
+
+def handleMessages(data=None, i=None):
     global id
     id = i
-    print('HarpReceived: ' + str(data))
-    send(data)
+    manager.verifyRequest(data)
+    # print('Client ' + str(i) + ' : ' + str(data))
+    # send(data)
+
 
 def send(data):
     global ef
-    ef(data, id)
+    ef(data, sid=id)

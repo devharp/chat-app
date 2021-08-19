@@ -5,12 +5,24 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '0QbpOgiOpTZO302x'
 socketio = SocketIO(app)
 
+@socketio.on('connect')
+def connect(auth):
+    sockethandler.onconnect(i=request.sid)
+
+@socketio.on('disconnect')
+def disconnect():
+    sockethandler.ondisconnect(i=request.sid)
+
 @socketio.on('message')
 def receivePayload(data):
-    sockethandler.handleMessages(data, request)
+    sockethandler.handleMessages(data, request.sid)
 
-def send(payload, id):
-    emit('message', payload, sid=id)
+def send(payload, sid=None, namespace=None):
+    if id != None:
+        emit('message', payload, sid=sid)
+    elif namespace != None:
+        emit('message', payload, namespace=namespace)
+
 
 sockethandler.init(send)
 
@@ -47,7 +59,7 @@ def dataRecv():
 def main():
     # app.run(port=8080)
     # sockethandler.init(s=socketio, e=emit, r=request)
-    socketio.run(app, port=8080)
+    socketio.run(app, port=8888)
 
 
 if __name__ == "__main__":

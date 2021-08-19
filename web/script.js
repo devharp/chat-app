@@ -74,7 +74,7 @@ create.svg.setAttribute('width', create.back.offsetWidth);
 create.svg.setAttribute('height', create.back.offsetHeight);
 function clickedCreate(event){
     let click = { x: event.offsetX, y: event.offsetY };
-    console.log(click);
+    // console.log(click);
     create.circle.setAttribute('cx', click.x);
     create.circle.setAttribute('cy', click.y);
     let t = { val: -1 };
