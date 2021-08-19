@@ -59,7 +59,7 @@ def dataRecv():
 def main():
     # app.run(port=8080)
     # sockethandler.init(s=socketio, e=emit, r=request)
-    socketio.run(app, port=8888)
+    socketio.run(app, port=8888, host='0.0.0.0')
 
 
 if __name__ == "__main__":

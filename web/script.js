@@ -1,5 +1,5 @@
 let sessionid = document.querySelector('#session-box #session-id');
-
+let join_id_match = false;
 let user_input = '';
 
 function keyu(e) {
@@ -9,15 +9,18 @@ function keyu(e) {
         // Match found
         if (match[0] == user_input) {
             sessionid.style.borderColor = '#00a000';
+            join_id_match = true;
         }
         else {
             sessionid.style.borderColor = 'crimson';
+            join_id_match = false;
         }
 
     }
     else {
         // Match not found
         sessionid.style.borderColor = 'crimson';
+        join_id_match = false;
 
     }
     sessionid.style.animation = 'key-down 0.3s infinite';

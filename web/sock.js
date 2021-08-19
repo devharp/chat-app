@@ -27,7 +27,10 @@ async function joinSession() {
         session: localStorage.getItem('session'),
         request: USER_REQUEST.JOIN
     };
-    sendMessage(payload);
+    if(join_id_match){
+        sendMessage(payload);
+    }
+    
 }
 
 function sendMessage(payload){
