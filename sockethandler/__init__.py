@@ -7,11 +7,13 @@ def init(emit_func):
     global ef 
     ef = emit_func
 
-def onconnect(data=None, i=None):
-    print('Client ' + str(i) + ' connected')
+def onConnect(data=None, id=None):
+    print('Client ' + str(id) + ' connected')
+    manager.onConnect(id=id)
 
-def ondisconnect(data=None, i=None):
-    print('Client ' + str(i) + ' disconnected')
+def onDisconnect(data=None, id=None):
+    print('Client ' + str(id) + ' disconnected')
+    manager.onDisconnect(id=id)
 
 def handleMessages(data=None, i=None):
     global id, ef

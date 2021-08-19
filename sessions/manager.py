@@ -26,7 +26,7 @@ def verifyRequest(data=None, id=None):
         temp_id.append(id)
         print('user wants to create a session')
         payload = {'request' : USER_REQUEST['CREATE'], 'session' : genSessionId(), 'node' : genId(15)}
-        # send('Received the req for a new session, session id: ' + genSessionId())
+        sessions_list.append(ChatSession(originatorid=payload['node'], sessionid=payload['session']))
         send(payload=payload)
 
     
@@ -34,10 +34,19 @@ def verifyRequest(data=None, id=None):
         print('user wants to join a session')
         send('Received your request for joining')
 
+
+def onConnect(id=None):
+    if id == None:
+        return
+
+def onDisconnect(id=None):
+    if id == None:
+        return
+
+    
+
 def send(payload):
     ef(payload)
-
-
 
 def genId(l):
     charset = "abcdefghijklmnopqrstuvwxyz0123456789"

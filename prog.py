@@ -7,11 +7,11 @@ socketio = SocketIO(app)
 
 @socketio.on('connect')
 def connect(auth):
-    sockethandler.onconnect(i=request.sid)
+    sockethandler.onConnect(id=request.sid)
 
 @socketio.on('disconnect')
 def disconnect():
-    sockethandler.ondisconnect(i=request.sid)
+    sockethandler.onDisconnect(id=request.sid)
 
 @socketio.on('message')
 def receivePayload(data):
