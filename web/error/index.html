@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../fonts/Roboto.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html{
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Roboto';
+            font-size: 30px;
+            font-weight: 900;
+            height: 100%;
+            width: 100%;
+            /* background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cbccc8)) fixed; */
+            /* background: -webkit-gradient(linear, left top, from(#fff), to(#f00)) fixed; */
+            /* background: linear-gradient(45deg, #dfdfdf, #fff); */
+        }
+
+        #elem {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* background-color: tomato; */
+            padding: 30px;
+            box-shadow: 5px 5px 5px rgba(150, 150, 150, 0.3);
+            background-color: white;
+
+        }
+
+        #cont {
+            display: flex;
+            position: relative;
+            float: left;
+        }
+
+        #ls {
+            padding-top: 15px;
+            padding-bottom: 15px;
+            color: #001a41;
+
+        }
+
+        #rs {
+            background-color: #001a41;
+            color: #fff;
+            height: max-content;
+            width: max-content;
+            padding: 15px;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="elem">
+        <div id="cont">
+            <div id="ls">Error 404</div>
+            <div id="sp">&ensp;</div>
+            <div id="rs">Not found !</div>
+        </div>
+    </div>
+</body>
+
+</html>

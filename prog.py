@@ -56,6 +56,11 @@ def dataRecv():
     else:
         return "Error"
 
+@app.route('/session/<id>')
+def sessionPage(id):
+    return 'You requested for: \'' + str(id) + '\''
+    # return 
+
 def main():
     # app.run(port=8080)
     # sockethandler.init(s=socketio, e=emit, r=request)
