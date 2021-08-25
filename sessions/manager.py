@@ -42,6 +42,7 @@ def onConnect(id=None):
 def onDisconnect(id=None):
     if id == None:
         return
+    print('id: ' + str(id) + ' left')
 
     
 

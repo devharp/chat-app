@@ -11,6 +11,9 @@ sock.on('message', function (message) {
         case USER_REQUEST.CREATE:
             console.log('session id: ' + message.session);
             console.log('node id: ' + message.node);
+            localStorage.setItem('session', message.session);
+            localStorage.setItem('node', message.node);
+            console.log('stored in the local storage');
             break;
         case USER_REQUEST.JOIN:
             break;
