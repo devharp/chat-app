@@ -1,4 +1,5 @@
 let USER_REQUEST = { CREATE: 1, JOIN: 2 };
+let SERVER_REQUEST = {SEND_NODE_ID: 3, RESPONSE_TO_SEND_NODE_ID: 4, SET_NODE_ID_ONLY: 5};
 var sock = io();
 sock.on('connect', function () {
     console.log('connected to the server');
@@ -17,6 +18,19 @@ sock.on('message', function (message) {
             break;
         case USER_REQUEST.JOIN:
             break;
+
+
+        case SERVER_REQUEST.SEND_NODE_ID:
+            let payload = {
+                request: SERVER_REQUEST.RESPONSE_TO_SEND_NODE_ID,
+                node: localStorage.getItem('node')
+            };
+            sendMessage(payload);
+            break;
+
+        case SERVER_REQUEST.SET_NODE_ID_ONLY:
+            localStorage.setItem('node', message.node);
+
     }
 
 });

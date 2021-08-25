@@ -58,7 +58,8 @@ def dataRecv():
 
 @app.route('/session/<id>')
 def sessionPage(id):
-    return 'You requested for: \'' + str(id) + '\''
+    sockethandler.joinSessionRequest(id)
+    return Response(open('./web/error/index.html', 'rb'), mimetype="text/html")
     # return 
 
 def main():

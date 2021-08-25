@@ -23,7 +23,8 @@ def handleMessages(data=None, i=None):
     # print('Client ' + str(i) + ' : ' + str(data))
     # send(data)
 
-
+def joinSessionRequest(id):
+    manager.sessionExists(id)
 def send(data):
     global ef
     ef(data, sid=id)
