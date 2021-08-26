@@ -1,0 +1,22 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: 'Roboto';
+}
+
+#container {
+    position: absolute;
+    /* display: flex; */
+    background-color: teal;
+    height: 100px;
+    width: 100%;
+}
