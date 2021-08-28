@@ -106,7 +106,7 @@ body {
 }
 
 #bottom #content {
-    background-color: darkgrey;
+    background-color: darkred;
     height: 0px;
     overflow: scroll;
 }
@@ -114,15 +114,56 @@ body {
 #bottom #content #people {
     padding: 5px;
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto;
     grid-row-gap: 20px;
-    grid-column-gap: 20px;
-    justify-items: center;
 }
 
 #bottom #content #people .peers {
-    /* margin: 15px; */
-    width: 75px;
-    height: 75px;
-    background-color: navy;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    background-color: salmon;
+    padding: 0px 5px 0px 5px;
+}
+
+#bottom #content #people .peers #left {
+    height: 40px;
+    background-color: burlywood;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 5px;
+}
+
+#bottom #content #people .peers #left #profile {
+    height: 40px;
+    width: 40px;
+    background-color: black;
+}
+
+#bottom #content #people .peers #left #name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+#bottom #content #people .peers #right {
+    display: flex;
+    flex-direction: row;
+}
+
+#bottom #content #people .peers #right #audio {
+    height: 40px;
+    width: 40px;
+    background-color: black;
+    margin-right: 5px;
+}
+
+#bottom #content #people .peers #right #video {
+    height: 40px;
+    width: 40px;
+    background-color: black;
+    margin-left: 5px;
 }
