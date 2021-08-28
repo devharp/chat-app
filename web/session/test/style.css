@@ -129,7 +129,7 @@ body {
 
 #bottom #content #people .peers #left {
     height: 40px;
-    background-color: burlywood;
+    /* background-color: burlywood; */
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -140,6 +140,7 @@ body {
     height: 40px;
     width: 40px;
     background-color: black;
+    border-radius: 50%;
 }
 
 #bottom #content #people .peers #left #name {
@@ -147,11 +148,13 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 150px;
+    margin-left: 5px;
 }
 
 #bottom #content #people .peers #right {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 }
 
 #bottom #content #people .peers #right #audio {
@@ -159,11 +162,12 @@ body {
     width: 40px;
     background-color: black;
     margin-right: 5px;
+    border-radius: 50%;
 }
 
 #bottom #content #people .peers #right #video {
     height: 40px;
     width: 40px;
     background-color: black;
-    margin-left: 5px;
+    border-radius: 50%;
 }
