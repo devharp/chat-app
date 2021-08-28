@@ -39,9 +39,10 @@ body {
 
 #bottom {
     background-color: wheat;
+    display: block;
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 900px) {
     /* Desktop View */
     #container {
         flex-direction: row;
@@ -64,7 +65,7 @@ body {
     }
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 900px) {
     /* Mobile View */
     #container {
         flex-direction: column;
@@ -85,4 +86,14 @@ body {
         width: 100%;
         height: calc(var(--win-h) / 2);
     }
+}
+
+#bottom #top {
+    background-color: crimson;
+    height: 40px;
+}
+
+#bottom #content {
+    background-color: darkgrey;
+    height: 0px;
 }

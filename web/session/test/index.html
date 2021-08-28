@@ -10,13 +10,16 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 
-<body onload="init()">
+<body onload="init()" onresize="init()">
     <div id="container">
         <div id="main">
             <div id="screen">screen</div>
             <div id="controls">controls</div>
         </div>
-        <div id="bottom"></div>
+        <div id="bottom">
+            <div id="top">top</div>
+            <div id="content">content here</div>
+        </div>
     </div>
     <script src="./script.js"></script>
 </body>
