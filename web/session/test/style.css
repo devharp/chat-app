@@ -98,9 +98,9 @@ body {
 }
 
 #bottom #top .sections {
-    /* flex-grow: 1; */
     margin: 0px 10px 0px 10px;
     padding: 5px;
+    border-radius: 5px;
     height: fit-content;
     background-color: darkkhaki;
 }
@@ -108,4 +108,21 @@ body {
 #bottom #content {
     background-color: darkgrey;
     height: 0px;
+    overflow: scroll;
+}
+
+#bottom #content #people {
+    padding: 5px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-row-gap: 20px;
+    grid-column-gap: 20px;
+    justify-items: center;
+}
+
+#bottom #content #people .peers {
+    /* margin: 15px; */
+    width: 75px;
+    height: 75px;
+    background-color: navy;
 }
