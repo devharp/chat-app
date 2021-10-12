@@ -1,6 +1,6 @@
 # 1 Establish SocketIO connection between SERVER and CLIENT.
 # 2 SERVER -> CLIENT : Send me your Identification codes.
-# 3 CLIENT sends the ID codes if available or send null values as ID codes in place of 'node', 'id' or 'session'.
+# 3 CLIENT sends the ID codes if available or send null values as ID codes in place of 'node', 'id' or 'session'. 'id-validation'
 # 4 SERVER will verify the ID codes, if values are wrong -> SERVER will then provide new IDs for client and register on the 'page'
 			if values are correct -> SERVER will check the IDs, 
 				if Session already exists -> CLIENT will be redirected to the Session, 
