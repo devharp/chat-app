@@ -4,8 +4,8 @@ html, body {
 }
 
 #root{
-  /* background-color: green; */
   height: 100%;
+  /* height: max-content; */
 }
 
 body {
