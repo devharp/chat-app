@@ -20,6 +20,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import TextField from '@mui/material/TextField';
+import { useParams } from 'react-router-dom';
 
 function App() {
   // const socket = socketClient('https://127.0.0.1:8000', { transports: ['websocket', 'polling', 'flashsocket'], secure: true });
@@ -27,6 +28,9 @@ function App() {
 
   socket.on('connect', function () {
     console.log('client found server');
+    /*for(let i = 0; i < 15; i++){
+      console.log(genRanMeetLink());
+    }*/
   });
 
   return (
@@ -34,11 +38,21 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path='home' element={<Home />} />
-        <Route exactly path="/about" element={<About />} />
+        <Route path="/about" element={<About />} />
+        <Route exact path="/:meetid" element={<SpecialComponent />} />
         <Route path="*" element={<NoPage />} />
 
       </Routes>
     </BrowserRouter>
+  );
+}
+
+const SpecialComponent = (match) => {
+  const meetlink = (useParams().meetid.match(/([a-f0-9]{3,4})-([a-f0-9]{3,4})-([a-f0-9]{3,4})$/) !== null)? (<>Found meeting link !</>) : <NoPage />;
+  return (
+    <>
+      {meetlink}
+    </>
   );
 }
 
@@ -61,7 +75,9 @@ const Home = () => {
         if (validN === null) {
           throw new Error('IncorrectNameError');
         }
+        
         setFirstNameHelper('Go Ahead!');
+        setNameStatus(false);
       }
       else {
         setFirstNameHelper('Enter name here');
@@ -72,9 +88,17 @@ const Home = () => {
         throw new Error('SessionLimitCrossedError');
       }
       if (session.length !== 0) {
-        const validN = session.match(/([a-f|0-9]{3,4})-([a-f|0-9]{3,4})-([a-f|0-9]{3,4})/);
+        let validN = session.match(/([a-f|0-9]{3,4})-([a-f|0-9]{3,4})-([a-f|0-9]{3,4})/);
+        
+        
         if (validN === null) {
           throw new Error('IncorrectSessionError');
+        }
+        else{
+          validN = session.replace(validN[0], '');
+          if(validN.length !== 0){
+            throw new Error('IncorrectSessionError');
+          }
         }
         setFirstSessionHelper('Go Ahead!');
         setSessionStatus(false);
@@ -82,7 +106,7 @@ const Home = () => {
       else {
         setFirstSessionHelper('Enter a Session ID or leave it empty');
         setSessionStatus(false);
-        console.log(session_status);
+        // console.log(session_status);
       }
 
 
@@ -95,7 +119,7 @@ const Home = () => {
           break;
         case 'IncorrectSessionError':
           setSessionStatus(true);
-          setFirstSessionHelper('Invalid Session Format');
+          setFirstSessionHelper('Invalid Session ID');
           console.error('check your session: ', e.message);
           break;
         default:
@@ -116,12 +140,29 @@ const Home = () => {
     setSession(event.target.value);
     // console.log(name);
   }
+  function handleBeginClick(){
+    if(!name_status && !session_status && name.length > 0){
+      if(session.length > 0){
+        console.log('everything is good here is the meeting link: ' + session);
+      }
+      else{
+        console.log('everything is good here is the meeting link: ' + genRanMeetLink());
+      }
+    }
+    else{
+      if(name.length === 0){
+        setNameStatus(true);
+
+      }
+      console.log('something did not go well');
+    }
+  }
 
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'start' }}>
         <ResponsiveAppBar />
-        <Box mt={5} component="div" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Box mt={5} component="div" sx={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'none' }}>
           <Typography variant="h4" sx={{ display: 'flex', justifyContent: 'center', fontWeight: '500' }}>
             Login
           </Typography>;
@@ -138,17 +179,23 @@ const Home = () => {
             <FormHelperText sx={{ display: 'flex', justifyContent: 'center', color: (session_status) ? ('error.main') : ((session.length === 0) ? ('text.secondary') : ('primary.main')) }} id="my-helper-text">{firstsessionhelper}</FormHelperText>
           </Box>
           <Box mt={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Button variant="contained" >Begin</Button>
+            <Button variant="contained" onClick={handleBeginClick} >Begin</Button>
           </Box>
         </Box>
+        <Footer />
 
-        <AppBar position='relative' sx={{ mt: 2 }}>
-          <Container sx={{ p: 1 }} ><div style={{ display: 'flex', justifyContent: 'center' }}>&copy; HarpMeet 2021</div></Container>
-        </AppBar>
       </div>
     </>
   );
 };
+
+const Footer = () => {
+  return (
+    <AppBar position='relative' sx={{ mt: 2 }}>
+      <Container sx={{ p: 1 }} ><div style={{ display: 'flex', justifyContent: 'center' }}>&copy; HarpMeet 2021</div></Container>
+    </AppBar>
+  );
+}
 
 const About = () => {
   const entries = new URLSearchParams(useLocation().search).entries();
@@ -161,9 +208,7 @@ const About = () => {
         <ResponsiveAppBar />
         <div style={{ flexGrow: '1' }}>About page</div>
 
-        <AppBar position='relative'>
-          <Container sx={{ p: 1 }} ><div style={{ display: 'flex', justifyContent: 'center' }}>Hello</div></Container>
-        </AppBar>
+        <Footer />
       </div>
     </>);
 };
@@ -309,5 +354,19 @@ const ResponsiveAppBar = () => {
     </AppBar>
   );
 };
+
+function genRanMeetLink(){
+  const charset = 'abcdef0123456789';
+  const codes = [3, 4];
+  let link = '';
+  for(let i = 0; i < 3; i++){
+    for(let j = 0; j < codes[parseInt(Math.random()*2)]; j++){
+      link += charset[parseInt(Math.random()*charset.length)];
+    }
+    link += '-';
+  }
+  return link.slice(0, link.length - 1);
+
+}
 
 export default App
