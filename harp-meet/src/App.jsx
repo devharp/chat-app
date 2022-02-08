@@ -21,16 +21,24 @@ import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import TextField from '@mui/material/TextField';
 import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
+const socket = socketClient('https://localhost:8000', { transports: ['websocket'], secure: true });
+let sessions_info = null;
 function App() {
   // const socket = socketClient('https://127.0.0.1:8000', { transports: ['websocket', 'polling', 'flashsocket'], secure: true });
-  const socket = socketClient('https://localhost:8000', { transports: ['websocket'], secure: true });
 
   socket.on('connect', function () {
     console.log('client found server');
     /*for(let i = 0; i < 15; i++){
       console.log(genRanMeetLink());
     }*/
+    socket.on('join-session-request-accepted', function(data){
+      console.log('server said: ', data);
+      sessions_info = data;
+      document.cookie = data.cookie;
+      console.log('cookie saved: ', document.cookie);
+    });
   });
 
   return (
@@ -48,7 +56,7 @@ function App() {
 }
 
 const SpecialComponent = (match) => {
-  const meetlink = (useParams().meetid.match(/([a-f0-9]{3,4})-([a-f0-9]{3,4})-([a-f0-9]{3,4})$/) !== null)? (<>Found meeting link !</>) : <NoPage />;
+  const meetlink = (useParams().meetid.match(/([a-f0-9]{3,4})-([a-f0-9]{3,4})-([a-f0-9]{3,4})$/) !== null) ? (<>Found meeting link !</>) : <NoPage />;
   return (
     <>
       {meetlink}
@@ -65,6 +73,8 @@ const Home = () => {
   const [session_status, setSessionStatus] = React.useState(false);
   const [firstsessionhelper, setFirstSessionHelper] = React.useState('Enter a Session ID or leave it empty');
 
+
+
   React.useEffect(() => {
     try {
       if (name.length > 15) {
@@ -75,7 +85,7 @@ const Home = () => {
         if (validN === null) {
           throw new Error('IncorrectNameError');
         }
-        
+
         setFirstNameHelper('Go Ahead!');
         setNameStatus(false);
       }
@@ -89,14 +99,14 @@ const Home = () => {
       }
       if (session.length !== 0) {
         let validN = session.match(/([a-f|0-9]{3,4})-([a-f|0-9]{3,4})-([a-f|0-9]{3,4})/);
-        
-        
+
+
         if (validN === null) {
           throw new Error('IncorrectSessionError');
         }
-        else{
+        else {
           validN = session.replace(validN[0], '');
-          if(validN.length !== 0){
+          if (validN.length !== 0) {
             throw new Error('IncorrectSessionError');
           }
         }
@@ -140,17 +150,17 @@ const Home = () => {
     setSession(event.target.value);
     // console.log(name);
   }
-  function handleBeginClick(){
-    if(!name_status && !session_status && name.length > 0){
-      if(session.length > 0){
-        console.log('everything is good here is the meeting link: ' + session);
+  function handleBeginClick() {
+    if (!name_status && !session_status && name.length > 0) {
+      let data = {name, session}
+      if (session.length === 0) {
+        data.session = genRanMeetLink();
       }
-      else{
-        console.log('everything is good here is the meeting link: ' + genRanMeetLink());
-      }
+      setSession(data.session);
+      requestToJoinSession(data);
     }
-    else{
-      if(name.length === 0){
+    else {
+      if (name.length === 0) {
         setNameStatus(true);
 
       }
@@ -355,18 +365,24 @@ const ResponsiveAppBar = () => {
   );
 };
 
-function genRanMeetLink(){
+function genRanMeetLink() {
   const charset = 'abcdef0123456789';
   const codes = [3, 4];
   let link = '';
-  for(let i = 0; i < 3; i++){
-    for(let j = 0; j < codes[parseInt(Math.random()*2)]; j++){
-      link += charset[parseInt(Math.random()*charset.length)];
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < codes[parseInt(Math.random() * 2)]; j++) {
+      link += charset[parseInt(Math.random() * charset.length)];
     }
     link += '-';
   }
   return link.slice(0, link.length - 1);
 
+}
+
+function requestToJoinSession(data) {
+  if(data.name && data.session){
+    socket.emit('join-session', data);
+  }
 }
 
 export default App
