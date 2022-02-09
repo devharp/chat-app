@@ -1,7 +1,7 @@
 import './App.css'
 import socketClient from 'socket.io-client'
 import { BrowserRouter, Routes, Route, Outlet, Link } from "react-router-dom";
-import { useLocation, useParams} from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 import * as React from 'react'
 import AppBar from '@mui/material/AppBar';
@@ -11,6 +11,9 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
+import CallEnd from '@mui/icons-material/CallEnd'
+import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
+import MessageIcon from '@mui/icons-material/Message';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -33,35 +36,12 @@ function App() {
     /*for(let i = 0; i < 15; i++){
       console.log(genRanMeetLink());
     }*/
-    
-    socket.on('user-joined', data => {
-      if(data.id !== socket.id){
-        let user_found = false;
-        for(let i = 0; i < sockets.length; i++){
-          if(sockets[i].id === data.id){
-            user_found = true;
-            break;
-          }
-        }
-        if(!user_found){
-          console.log('new user joined: ', data);
-          sockets.push(data);
-        }
-      }
-    });
-    socket.on('user-left', data => {
-      // console.log('new user left: ', data);
-      for(let i = 0; i < sockets.length; i++){
-        if(sockets[i].id === data){
-          sockets.splice(i, 1);
-          console.log('user ' + data + ' left, so user has been successfully removed');
-          break;
-        }
-      }
-    });
+
+
+
   });
 
-  
+
   return (
     <BrowserRouter>
       <Routes>
@@ -77,10 +57,118 @@ function App() {
 }
 
 const SpecialComponent = (match) => {
-  const meetlink = (useParams().meetid.match(/([a-f0-9]{3,4})-([a-f0-9]{3,4})-([a-f0-9]{3,4})$/) !== null) ? (<>Found meeting link !</>) : <NoPage />;
+  const meetlink = (useParams().meetid.match(/([a-f0-9]{3,4})-([a-f0-9]{3,4})-([a-f0-9]{3,4})$/) !== null) ? <MeetingPage /> : <NoPage />;
   return (
     <>
       {meetlink}
+    </>
+  );
+}
+const MeetingPage = () => {
+  const [users, setUsers] = React.useState([{ name: 0 }]);
+
+  useEffect(() => {
+    socket.on('user-joined', data => {
+      if (data.id !== socket.id) {
+        let user_found = false;
+        for (let i = 0; i < sockets.length; i++) {
+          if (sockets[i].id === data.id) {
+            user_found = true;
+            break;
+          }
+        }
+        if (!user_found) {
+          console.log('new user joined: ', data);
+          sockets.push(data);
+
+          socket.emit('get-session-info');
+        }
+      }
+    });
+    socket.on('user-left', data => {
+      // console.log('new user left: ', data);
+      for (let i = 0; i < sockets.length; i++) {
+        if (sockets[i].id === data) {
+          sockets.splice(i, 1);
+          console.log('user ' + data + ' left, so user has been successfully removed');
+
+          break;
+        }
+      }
+      socket.emit('get-session-info');
+    });
+    socket.on('session-info', data => {
+      console.log('everything about session: ', data);
+      if (data.length !== sockets.length) {
+        console.error('mismatch sockets length');
+      }
+      let list = [];
+      for (const e of data) {
+        list.push(e);
+      }
+      try {
+
+        setUsers(list);
+      } catch (e) { }
+    });
+    // console.log();
+  });
+
+  //----Menu Button Begin-----
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  //---Menu Button End----
+  return (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+        <div>
+
+          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', backgroundColor: 'red', justifyContent: 'space-around' }}>{users.map((e, i) => {
+            return <div key={i} style={{ backgroundColor: 'black', margin: '2px', height: '200px', width: '200px' }}>{e.name}</div>;
+          })}</div>
+
+        </div>
+        <div style={{ padding: '10px 0px', display: 'flex', justifyContent: 'center' }}>
+        <div>
+            <Button variant="contained" sx={{ margin: '0px 5px', borderRadius: '15px', color: 'white', backgroundColor: 'primary.main', padding: '3px 0' }}><MessageIcon /></Button>
+          </div>
+          <div>
+          <Button variant="contained" sx={{ margin: '0px 5px', borderRadius: '15px', color: 'white', backgroundColor: 'error.main', padding: '3px 0' }}><CallEnd /></Button>
+
+          </div>
+          <div>
+            <Button
+              id="basic-button"
+              aria-controls={open ? 'basic-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              onClick={handleClick}
+              sx={{ margin: '0px 5px', padding: '3px 0', color: 'white', borderRadius: '15px', backgroundColor: 'primary.main'}}
+            >
+              <VideoSettingsIcon />
+            </Button>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem onClick={handleClose}>Profile</MenuItem>
+              <MenuItem onClick={handleClose}>My account</MenuItem>
+              <MenuItem onClick={handleClose}>Logout</MenuItem>
+            </Menu>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
@@ -174,17 +262,19 @@ const Home = () => {
   const navigate = useNavigate();
   function handleBeginClick() {
     if (!name_status && !session_status && name.length > 0) {
-      let data = {name, session}
+      let data = { name, session }
       if (session.length === 0) {
         data.session = genRanMeetLink();
       }
       setSession(data.session);
       requestToJoinSession(data);
       socket.on('join-session-request-accepted', data => {
-        if(sessions_info === null){
+        if (sessions_info === null) {
           sessions_info = data;
           console.log('server said: ', data);
           navigate('/' + data.session);
+          sockets.push({ name: data.name, sesion: data.session, id: socket.id })
+          socket.emit('get-session-info');
         }
       });
     }
@@ -409,7 +499,7 @@ function genRanMeetLink() {
 }
 
 function requestToJoinSession(data) {
-  if(data.name && data.session){
+  if (data.name && data.session) {
     socket.emit('join-session', data);
   }
 }

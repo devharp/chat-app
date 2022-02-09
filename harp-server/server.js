@@ -103,6 +103,25 @@ io.on('connection', (socket) => { /* socket object may be used to send specific 
         console.log('attendees length: ', attendees.length);
     });
 
+    socket.on('get-session-info', data => {
+        let session = null;
+        for (let i = 0; i < attendees.length; i++) {
+            if (attendees[i].socket.id === socket.id) {
+                session = attendees[i].session;
+                break;
+            }
+        }
+        if (session !== null) {
+            let session_members = attendees.filter(e => e.session === session)
+            let payload = [];
+            for (let i = 0; i < session_members.length; i++) {
+                let e = session_members[i];
+                payload.push({name: e.name, session: e.session, id: e.socket.id});
+            }
+            socket.emit('session-info', payload);
+        }
+    });
+
     socket.on('disconnect', () => {
         /*
             Remove 'socket' from 'attendees' array
