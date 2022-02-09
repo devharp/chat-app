@@ -1,3 +1,4 @@
+const e = require('express');
 const fs = require('fs');
 const app = require('express')();
 const https = require('https').createServer({
@@ -59,16 +60,23 @@ io.on('connection', (socket) => { /* socket object may be used to send specific 
                 }
                 if (session !== null) {
                     console.log('session already exist');
-
-
-                    attendees.push({ name: data.name, session: data.session, owner: null, socket })
-                    socket.emit('join-session-request-accepted', { owner: false, session: data.session, name: data.name });
+                    let socket_exits = attendees.filter(e => e.socket.id === socket.id);
+                    if (socket_exits.length === 0) {
+                        socket.join(data.session);
+                        io.to(data.session).emit('user-joined', { name: data.name, session: data.session, id: socket.id })
+                        attendees.push({ name: data.name, session: data.session, owner: null, socket })
+                        socket.emit('join-session-request-accepted', { owner: false, session: data.session, name: data.name });
+                    }
                     console.log('attendees length: ', attendees.length);
                 }
                 else {
                     console.log('new session');
-                    attendees.push({ name: data.name, session: data.session, owner: socket, socket });
-                    socket.emit('join-session-request-accepted', { owner: true, session: data.session, name: data.name });
+                    let socket_exits = attendees.filter(e => e.socket.id === socket.id);
+                    if (socket_exits.length === 0) {
+                        socket.join(data.session);
+                        attendees.push({ name: data.name, session: data.session, owner: socket, socket });
+                        socket.emit('join-session-request-accepted', { owner: true, session: data.session, name: data.name });
+                    }
                     console.log('attendees length: ', attendees.length);
                 }
             }
@@ -86,6 +94,7 @@ io.on('connection', (socket) => { /* socket object may be used to send specific 
         */
         for (let i = 0; i < attendees.length; i++) {
             if (attendees[i].socket === socket) {
+                io.to(attendees[i].session).emit('user-left', socket.id);
                 attendees.splice(i, 1);
                 console.log('user requested to leave the session, so user is out');
                 break;
@@ -98,14 +107,16 @@ io.on('connection', (socket) => { /* socket object may be used to send specific 
         /*
             Remove 'socket' from 'attendees' array
         */
-        //    console.log('socket left');
+        console.log('socket left');
         for (let i = 0; i < attendees.length; i++) {
             if (attendees[i].socket === socket) {
+                io.to(attendees[i].session).emit('user-left', socket.id);
                 attendees.splice(i, 1);
                 console.log('user left, so user is out');
                 break;
             }
         }
+
         console.log('attendees length: ', attendees.length);
 
     });

@@ -1,7 +1,7 @@
 import './App.css'
 import socketClient from 'socket.io-client'
 import { BrowserRouter, Routes, Route, Outlet, Link } from "react-router-dom";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams} from 'react-router-dom';
 
 import * as React from 'react'
 import AppBar from '@mui/material/AppBar';
@@ -16,31 +16,52 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import TextField from '@mui/material/TextField';
-import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const socket = socketClient('https://localhost:8000', { transports: ['websocket'], secure: true });
 let sessions_info = null;
+let sockets = []
 function App() {
   // const socket = socketClient('https://127.0.0.1:8000', { transports: ['websocket', 'polling', 'flashsocket'], secure: true });
 
+
   socket.on('connect', function () {
-    console.log('client found server');
+    console.log('client found server, my id: ', socket.id);
     /*for(let i = 0; i < 15; i++){
       console.log(genRanMeetLink());
     }*/
-    socket.on('join-session-request-accepted', function(data){
-      console.log('server said: ', data);
-      sessions_info = data;
-      document.cookie = data.cookie;
-      console.log('cookie saved: ', document.cookie);
+    
+    socket.on('user-joined', data => {
+      if(data.id !== socket.id){
+        let user_found = false;
+        for(let i = 0; i < sockets.length; i++){
+          if(sockets[i].id === data.id){
+            user_found = true;
+            break;
+          }
+        }
+        if(!user_found){
+          console.log('new user joined: ', data);
+          sockets.push(data);
+        }
+      }
+    });
+    socket.on('user-left', data => {
+      // console.log('new user left: ', data);
+      for(let i = 0; i < sockets.length; i++){
+        if(sockets[i].id === data){
+          sockets.splice(i, 1);
+          console.log('user ' + data + ' left, so user has been successfully removed');
+          break;
+        }
+      }
     });
   });
 
+  
   return (
     <BrowserRouter>
       <Routes>
@@ -150,6 +171,7 @@ const Home = () => {
     setSession(event.target.value);
     // console.log(name);
   }
+  const navigate = useNavigate();
   function handleBeginClick() {
     if (!name_status && !session_status && name.length > 0) {
       let data = {name, session}
@@ -158,6 +180,13 @@ const Home = () => {
       }
       setSession(data.session);
       requestToJoinSession(data);
+      socket.on('join-session-request-accepted', data => {
+        if(sessions_info === null){
+          sessions_info = data;
+          console.log('server said: ', data);
+          navigate('/' + data.session);
+        }
+      });
     }
     else {
       if (name.length === 0) {
