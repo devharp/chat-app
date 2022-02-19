@@ -8,6 +8,8 @@ const https = require('https').createServer({
 }, app);
 const HTTPS_PORT = 8000;
 const io = require('socket.io')(https);
+const peer = require('peer');
+const peerServer = peer.ExpressPeerServer(https);
 
 let attendees = [];
 /* name expirytime sessionid sessionadmin */
@@ -16,6 +18,8 @@ app.use(function (req, res, next) {
     console.log('something happened');
     next();
 });
+
+app.use('/peerjs', peerServer);
 
 app.get('/', (req, res) => {
     res.send('Home Page');

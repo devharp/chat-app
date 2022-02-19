@@ -13,6 +13,7 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import CallEnd from '@mui/icons-material/CallEnd'
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import MessageIcon from '@mui/icons-material/Message';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
@@ -130,17 +131,19 @@ const MeetingPage = () => {
         <div>
 
           <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', backgroundColor: 'red', justifyContent: 'space-around' }}>{users.map((e, i) => {
-            return <div key={i} style={{ backgroundColor: 'black', margin: '2px', height: '200px', width: '200px' }}>{e.name}</div>;
+            return <div key={i} style={{ backgroundColor: 'yellow', margin: '2px', height: '200px', width: '200px' }}>{e.name}</div>;
           })}</div>
 
         </div>
         <div style={{ padding: '10px 0px', display: 'flex', justifyContent: 'center' }}>
-        <div>
+          <div>
             <Button variant="contained" sx={{ margin: '0px 5px', borderRadius: '15px', color: 'white', backgroundColor: 'primary.main', padding: '3px 0' }}><MessageIcon /></Button>
           </div>
           <div>
-          <Button variant="contained" sx={{ margin: '0px 5px', borderRadius: '15px', color: 'white', backgroundColor: 'error.main', padding: '3px 0' }}><CallEnd /></Button>
-
+            <Button variant="contained" sx={{ margin: '0px 5px', borderRadius: '15px', color: 'white', backgroundColor: 'error.main', padding: '3px 0' }}><CallEnd /></Button>
+          </div>
+          <div>
+            <Button variant="contained" sx={{ margin: '0px 5px', borderRadius: '15px', color: 'white', backgroundColor: 'primary.main', padding: '3px 0' }}><PlayArrowIcon /></Button>
           </div>
           <div>
             <Button
@@ -149,7 +152,7 @@ const MeetingPage = () => {
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
               onClick={handleClick}
-              sx={{ margin: '0px 5px', padding: '3px 0', color: 'white', borderRadius: '15px', backgroundColor: 'primary.main'}}
+              sx={{ margin: '0px 5px', padding: '3px 0', color: 'white', borderRadius: '15px', backgroundColor: 'primary.main' }}
             >
               <VideoSettingsIcon />
             </Button>
