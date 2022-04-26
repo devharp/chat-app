@@ -1,0 +1,46 @@
+html, body, #root{
+  height: 100%;
+  width: 100%;
+  font-size: small;
+}
+
+#root{
+  display: flex;
+}
+
+.load-anim{
+  transform: translateY(50px);
+  opacity: 0;
+  animation: load-anim-keyframes 1.5s forwards;
+}
+
+@keyframes load-anim-keyframes {
+  to{
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.load-zoom-anim{
+  transform: scale(1.25);
+  opacity: 0;
+  animation: load-zoom-anim-keyframes 1.5s forwards;
+}
+
+@keyframes load-zoom-anim-keyframes {
+  to{
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-popup{
+  animation: modal-anim 1s forwards;
+}
+
+@keyframes modal-anim{
+  to{
+    top: 50%;
+    opacity: 1;
+  }
+}
