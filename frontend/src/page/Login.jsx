@@ -35,7 +35,7 @@ function Login() {
 
         if (user.length > 0 && pass.length > 0) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://192.168.1.7:3005/login');
+            xhr.open('POST', '/login');
 
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4) {
@@ -63,7 +63,7 @@ function Login() {
 
         if (email.length > 0 && user.length > 0 && pass.length > 0) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://192.168.1.7:3005/login');
+            xhr.open('POST', '/login');
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     const payload = JSON.parse(xhr.responseText);
