@@ -13,7 +13,7 @@ const io = require('socket.io')(http, {
 const cors = require('cors');
 const cookieparser = require('cookie-parser');
 const session = require('express-session');
-const HTTP_PORT = 3005;
+const HTTP_PORT = 3000;
 const states = {
     LOGIN_ACCOUNT: 'loginacc',
     CREATE_ACCOUNT: 'createacc',
@@ -34,8 +34,7 @@ const routes = ['/', '/index.html', '/settings', '/about', '/error'];
 const auth = (req, res, next) => {
     if (req.session && clientsessions.includes(req.session.user)) {
         next();
-    }
-    else {
+    } else {
         console.log('rejected request: ', req.session.user);
         res.redirect('/login');
     }
@@ -43,11 +42,11 @@ const auth = (req, res, next) => {
 
 const auth1 = (req, res, next) => {
     // console.log(req.url);
-    if(req.url !== '/'){
+    if (req.url !== '/') {
         next();
         return;
     }
-    if(!clientsessions.includes(req.session.user)){
+    if (!clientsessions.includes(req.session.user)) {
         res.redirect('/login');
         return;
     }
@@ -55,7 +54,7 @@ const auth1 = (req, res, next) => {
 }
 
 const auth2 = (req, res, next) => {
-    if(clientsessions.includes(req.session.user)){
+    if (clientsessions.includes(req.session.user)) {
         res.redirect('/');
         return;
     }
@@ -91,22 +90,18 @@ app.post('/login', (req, res) => {
                 req.session.user = payload.user;
                 // res.sendStatus(200).end();
                 res.status(200).send({ status: 'redirect', to: '/' });
-                if(!clientsessions.includes(payload.user)){
+                if (!clientsessions.includes(payload.user)) {
                     clientsessions.push(payload.user);
                 }
                 console.log('session: ', req.session.user);
                 console.log(clientsessions);
             }
         });
-    }
-
-    else if (payload.state === states.CREATE_ACCOUNT) {
-        if(db.createUser(payload) === 'ok'){
+    } else if (payload.state === states.CREATE_ACCOUNT) {
+        if (db.createUser(payload) === 'ok') {
             res.status(200).send({ status: 'created-account' });
         }
-    }
-
-    else {
+    } else {
         console.error('Unknown State triggered');
     }
     return;
@@ -164,7 +159,7 @@ function genRanLink() {
     return String(genRanHex(lim[parseInt(Math.random() * lim.length)]) + '-' + genRanHex(lim[parseInt(Math.random() * lim.length)]) + '-' + genRanHex(lim[parseInt(Math.random() * lim.length)]))
 }
 
-function geth(link){
+function geth(link) {
     const host = 'http://' + '192.168.1.7' + ':' + HTTP_PORT + '/' + link;
     return host;
 }
