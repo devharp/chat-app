@@ -3,21 +3,21 @@ const path = require('path');
 const db = new sqlite.Database(path.join(__dirname, 'harp.db'));
 
 function createUser(payload) {
-    if (payload === undefined) {
-        return -1;
-    }
+    return new Promise((resolve, reject) => {
 
-    db.run(`INSERT INTO users(email, user, pass, id) VALUES("${payload.email}", "${payload.user}", "${payload.pass}", "${genRanHex(40)}")`, (error, rows) => {
-        if (error) {
-            console.error('error occurred: ', error);
-            return;
+        if (payload === undefined) {
+            reject(-1);
         }
-        if (rows !== undefined) {
-            console.log(rows);
-        }
+
+        db.run(`INSERT INTO users(email, user, pass, id, kmails) VALUES("${payload.email}", "${payload.user}", "${payload.pass}", "${genRanHex(40)}", "${payload.kmails}")`, (error, rows) => {
+            if (error) {
+                console.error('error occurred: ', error);
+                reject(error);
+            } else {
+                resolve(true);
+            }
+        });
     });
-
-    return 'ok';
 }
 
 function validateUser(user, pass) {

@@ -24,7 +24,7 @@ function App() {
           <Route index element={<Home addSession={addSession} joinSession={joinSession} />} />
           <Route path='settings' element={<Settings />} />
           <Route path='login' element={<Login />} />
-          <Route path='/:link' element={<Meeting />} />
+          {/* <Route path='/:link' element={<Meeting />} /> */}
           <Route path='/error' element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>

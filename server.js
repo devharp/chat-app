@@ -45,7 +45,10 @@ const auth = (req, res, next) => {
                 }
             })
             .catch(err => {
-
+                if (req.session !== null) {
+                    console.log('Maybe username or password has been changed, so destroying the session');
+                    req.session.destroy();
+                }
                 res.redirect('/login');
             });
     } else {
@@ -66,10 +69,17 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const payload = JSON.parse(req.body);
+    let payload;
+    try {
+        payload = JSON.parse(req.body);
+    } catch (error) {
+        console.log(error);
+        res.send({ status: 'failed-account' }).end();
+    }
     if (!validate(payload)) {
         res.sendStatus(200).end();
-        console.log('validation failed');
+        console.log('validation failed:\n', req.body);
+        res.send({ status: 'failed-account' }).end();
         return;
     }
 
@@ -94,8 +104,17 @@ app.post('/login', (req, res) => {
 
     } else if (payload.state === states.CREATE_ACCOUNT) {
 
+        payload.kmails = '';
         console.log(payload);
-        res.sendStatus(501).end();
+        dbhandler.createUser(payload)
+            .then(v => {
+                console.log('Account created successfully');
+                res.send({ status: 'created-account' }).end();
+            })
+            .catch(err => {
+                console.log('Account creation failed: ', err);
+                res.send({ status: 'failed-account' }).end();
+            });
 
     } else {
 
@@ -106,7 +125,7 @@ app.post('/login', (req, res) => {
     return;
 });
 
-app.get('/meeting', auth, (req, res) => {
+app.get(/^\/([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/, (req, res) => {
     res.send('Meeting page here');
 });
 
