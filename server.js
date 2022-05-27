@@ -1,5 +1,6 @@
 const express = require('express');
 const dbhandler = require('./database/db');
+const meetinghandler = require('./modules/meetinghandler');
 const { validate } = require('./modules/validation');
 const path = require('path');
 const app = express();
@@ -57,6 +58,8 @@ const auth = (req, res, next) => {
     }
 }
 
+app.set('view engine', 'ejs');
+
 app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
 app.get(routes, auth, (req, res) => {
@@ -75,11 +78,11 @@ app.post('/login', (req, res) => {
     } catch (error) {
         console.log(error);
         res.send({ status: 'failed-account' }).end();
+        return;
     }
     if (!validate(payload)) {
-        res.sendStatus(200).end();
         console.log('validation failed:\n', req.body);
-        res.send({ status: 'failed-account' }).end();
+        res.send({ status: 'failed-account' });
         return;
     }
 
@@ -104,7 +107,7 @@ app.post('/login', (req, res) => {
 
     } else if (payload.state === states.CREATE_ACCOUNT) {
 
-        payload.kmails = '';
+        payload.kmails = '[]';
         console.log(payload);
         dbhandler.createUser(payload)
             .then(v => {
@@ -125,8 +128,19 @@ app.post('/login', (req, res) => {
     return;
 });
 
-app.get(/^\/([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/, (req, res) => {
-    res.send('Meeting page here');
+app.get(/^\/([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/, auth, (req, res) => {
+    res.render('pages/meeting.ejs', { username: req.session.username, password: req.session.password });
+});
+
+app.post('/meeting', auth, (req, res) => {
+    try {
+        const payload = JSON.parse(req.body);
+        console.log('received for the meeting:\n', payload);
+        res.send({ status: '-1' })
+    } catch (error) {
+        console.error(error);
+        res.send({ status: '-1' })
+    }
 });
 
 app.get('/get', auth, (req, res) => {
@@ -218,7 +232,36 @@ app.get('/logout', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+    console.log('user joined');
+    socket.on('add-to-session', payload => {
+        console.log(payload);
+        dbhandler.validateUser(payload.username, payload.password)
+            .then(v => {
+                if (v === 1) {
+                    if (/^([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/.exec(payload.link)[0] === payload.link) {
 
+                        meetinghandler.joincreateSession(payload.username, payload.link);
+                        meetinghandler.addMemberToSession({ socket, peer: payload.peer }, payload.link);
+
+                        const session = meetinghandler.getSession(payload.link);
+
+                        console.log('session info:\n', { link: session.link, creator: session.creator }, '\nmembers:\n');
+                        for (let i = 0; i < session.members.length; i++) {
+                            const e = session.members[i];
+                            console.log({ socket: e.socket.id, peer: e.peer });
+                        }
+
+                    }
+                }
+            })
+            .catch(e => {
+                console.error(e);
+            });
+    });
+
+    socket.on('disconnect', () => {
+        meetinghandler.deleteMemberFromSession(socket.id);
+    });
 })
 
 http.listen(HTTP_PORT, '0.0.0.0', () => {

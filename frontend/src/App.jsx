@@ -11,17 +11,12 @@ import Login from './page/Login';
 
 function App() {
 
-  const joinSession = (link) => {  }
-
-  const addSession = () => {
-    console.log('Do nothing');
-  }
 
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route index element={<Home addSession={addSession} joinSession={joinSession} />} />
+          <Route index element={<Home />} />
           <Route path='settings' element={<Settings />} />
           <Route path='login' element={<Login />} />
           {/* <Route path='/:link' element={<Meeting />} /> */}

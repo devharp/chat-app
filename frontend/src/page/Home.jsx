@@ -6,8 +6,38 @@ import img00 from '../../src/assets/images/home/00.jpg';
 import NavBar from '../component/NavBar';
 import Desktop from '../layout/Desktop';
 import Mobile from '../layout/Mobile';
+import { useState } from 'react';
 
 function Home(props) {
+    // const host = 'http://192.168.1.7:3000'
+    const host = ''
+    const [meetlink, setMeetLink] = useState('');
+
+    const meetbtnclick = () => {
+        const xhr = new XMLHttpRequest();
+        console.log('meeting link: ', meetlink);
+        xhr.open('POST', host + '/meeting');
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState === XMLHttpRequest.DONE){
+                const payload = JSON.parse(xhr.response);
+                if(payload.status === 'meeting-found'){
+                    console.log('Meeting found');
+                    window.location.href = payload.redirect;
+                }
+
+                else if(payload.status === 'meeting-notfound'){
+                    console.log('Meeting not found');
+                }
+
+                else{
+                    console.log('Unknown status received: ', payload);
+                }
+
+            }
+        }
+        xhr.send(JSON.stringify({ link: meetlink }));
+    }
+
     return (
         <>
             <div className='flex-grow-1' style={{ backgroundColor: 'none' }}>
@@ -27,11 +57,11 @@ function Home(props) {
                                     </Box>
                                 </div>
                                 <div className='mt-5 d-flex'>
-                                    <Button onClick={props.addSession} className='me-3' variant='contained'><VideoCallRoundedIcon /> &nbsp; Create Meeting</Button>
+                                    <Button onClick={meetbtnclick} className='me-3' variant='contained'><VideoCallRoundedIcon /> &nbsp; {(meetlink.length > 0) ? 'JOIN' : 'CREATE'} Meeting</Button>
 
                                     <TextField variant='filled' size='small' label='Meeting Link' placeholder='Enter a link here' InputProps={{
                                         startAdornment: <InputAdornment position="start"><KeyboardAltRoundedIcon /></InputAdornment>
-                                    }} />
+                                    }} value={meetlink} onChange={(event) => setMeetLink(event.target.value)} />
                                 </div>
                             </Box>
                             <Box className='flex-grow-1' style={{ height: '100%', overflow: 'hidden' }}>
@@ -62,11 +92,11 @@ function Home(props) {
                                     </Box>
                                 </div>
                                 <div className='mt-5 d-flex flex-column' style={{ maxWidth: '200px' }}>
-                                    <Button onClick={props.addSession} className='mb-3 py-3' variant='contained'><VideoCallRoundedIcon /> &nbsp; Create Meeting</Button>
+                                    <Button onClick={meetbtnclick} className='mb-3 py-3' variant='contained'><VideoCallRoundedIcon /> &nbsp; {(meetlink.length > 0) ? 'JOIN' : 'CREATE'} Meeting</Button>
 
                                     <TextField variant='filled' size='small' label='Meeting Link' placeholder='Enter a link here' InputProps={{
                                         startAdornment: <InputAdornment position="start"><KeyboardAltRoundedIcon /></InputAdornment>
-                                    }} />
+                                    }} value={meetlink} onChange={(event) => setMeetLink(event.target.value)} />
                                 </div>
                             </Box>
                         </div>

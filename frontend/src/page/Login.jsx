@@ -43,6 +43,9 @@ function Login() {
                         case 'redirect':
                             window.location.href = payload.to;
                             break;
+                        case 'failed-account':
+                            console.log('failed to login to an account')
+                            break;
                         default:
                             console.error('Unknown status received')
                             break;
