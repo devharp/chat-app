@@ -1,17 +1,16 @@
 const express = require('express');
-const db = require('./database/db');
+const dbhandler = require('./database/db');
 const { validate } = require('./modules/validation');
 const path = require('path');
 const app = express();
 const http = require('http').createServer(app);
+const cors = require('cors');
 const io = require('socket.io')(http, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST']
     }
 });
-const cors = require('cors');
-const cookieparser = require('cookie-parser');
 const session = require('express-session');
 const HTTP_PORT = 3000;
 const states = {
@@ -19,65 +18,55 @@ const states = {
     CREATE_ACCOUNT: 'createacc',
 }
 
-let sockets = [];
-let clientsessions = [];
 app.use(cors());
 app.use(express.text());
-app.use(cookieparser());
 app.use(session({
     secret: genRanHex(50),
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 },
+    resave: true,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
 }));
-const routes = ['/', '/index.html', '/settings', '/about', '/error'];
+const routes = ['/', '/settings', '/about', '/error'];
 const auth = (req, res, next) => {
-    if (req.session && clientsessions.includes(req.session.user)) {
-        next();
+
+    if (req.session !== null) {
+        console.log('session not null here');
+        dbhandler.validateUser(req.session.username, req.session.password)
+            .then(value => {
+                if (value === 1) {
+
+                    console.log('session found');
+                    next();
+
+                } else {
+                    console.log('session found but unknown error occurred');
+                    req.session.destroy();
+                    res.redirect('/login');
+                }
+            })
+            .catch(err => {
+
+                res.redirect('/login');
+            });
     } else {
-        console.log('rejected request: ', req.session.user);
+        console.log('here, session not found');
         res.redirect('/login');
     }
 }
 
-const auth1 = (req, res, next) => {
-    // console.log(req.url);
-    if (req.url !== '/') {
-        next();
-        return;
-    }
-    if (!clientsessions.includes(req.session.user)) {
-        res.redirect('/login');
-        return;
-    }
-    next();
-}
-
-const auth2 = (req, res, next) => {
-    if (clientsessions.includes(req.session.user)) {
-        res.redirect('/');
-        return;
-    }
-    next();
-}
-
-app.use('/', auth1, express.static(path.join(__dirname, 'frontend', 'build')));
+app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
 app.get(routes, auth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+
+    res.sendFile(path.join(__dirname, 'frontend', 'build', 'page.html'));
 });
 
-app.get('/login', auth2, (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
-});
-
-app.get('/meeting', auth, (req, res) => {
-    res.send('Meeting page here');
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'build', 'page.html'));
 });
 
 app.post('/login', (req, res) => {
     const payload = JSON.parse(req.body);
-    // console.log(payload);
     if (!validate(payload)) {
         res.sendStatus(200).end();
         console.log('validation failed');
@@ -85,60 +74,132 @@ app.post('/login', (req, res) => {
     }
 
     if (payload.state === states.LOGIN_ACCOUNT) {
-        db.validateUser(payload).then(response => {
-            if (response === 1) {
-                req.session.user = payload.user;
-                // res.sendStatus(200).end();
-                res.status(200).send({ status: 'redirect', to: '/' });
-                if (!clientsessions.includes(payload.user)) {
-                    clientsessions.push(payload.user);
+
+        console.log(payload);
+        dbhandler.validateUser(payload.user, payload.pass)
+            .then(value => {
+                if (value === 1) {
+                    console.log('found user: ', { user: payload.user, pass: payload.pass });
+                    req.session.username = payload.user;
+                    req.session.password = payload.pass;
+                    res.send({ status: 'redirect', to: '/' });
+                } else {
+                    res.sendStatus(501).end();
                 }
-                console.log('session: ', req.session.user);
-                console.log(clientsessions);
-            }
-        });
+            })
+            .catch(err => {
+                console.log(err)
+                res.sendStatus(501).end();
+            });
+
     } else if (payload.state === states.CREATE_ACCOUNT) {
-        if (db.createUser(payload) === 'ok') {
-            res.status(200).send({ status: 'created-account' });
-        }
+
+        console.log(payload);
+        res.sendStatus(501).end();
+
     } else {
+
         console.error('Unknown State triggered');
+        res.sendStatus(501).end();
+
     }
     return;
 });
 
-app.get('/logout', (req, res) => {
-    if (clientsessions.includes(req.session.user)) {
-        clientsessions.splice(clientsessions.indexOf(req.session.user), 1);
-        req.session.destroy();
+app.get('/meeting', auth, (req, res) => {
+    res.send('Meeting page here');
+});
+
+app.get('/get', auth, (req, res) => {
+    const username = req.session.username;
+    const query = req.query;
+    console.log('here');
+    switch (query.key) {
+        case "kmails":
+            // dbhandler.getKnownMails(req.session.username)
+            dbhandler.getKnownMails(username)
+                .then(value => {
+                    res.send(value).end();
+                })
+                .catch(err => {
+                    res.send('unknown error occurred');
+                });
+            break;
+        case "user":
+            dbhandler.getUser(username)
+                .then(v => {
+                    res.send(v);
+                })
+                .catch(err => {
+                    res.send('unknown error occurred');
+                });
+            break;
+        case "pass":
+            dbhandler.getPass(username)
+                .then(v => {
+                    res.send(v);
+                })
+                .catch(err => {
+                    res.send('unknown error occurred');
+                });
+            break;
+        default:
+            res.send('unknown query sent')
+            break;
+
     }
-    res.redirect('/login');
-    console.log(clientsessions);
+});
+
+app.post('/get', auth, (req, res) => {
+    const username = req.session.username;
+    const query = req.query;
+    let payload;
+    console.log({ query, payload });
+    switch (query.key) {
+        case "kmails":
+            payload = req.body;
+            dbhandler.setKnownMails(username, payload)
+                .then(value => {
+                    res.send(value);
+                })
+                .catch(err => {
+                    res.send('unknown error occurred');
+                });
+            break;
+        case 'all':
+            console.log('request to change all data values at once');
+            payload = JSON.parse(req.body);
+            payload = { kmails: JSON.stringify(payload.kmaills), user: payload.userpassv.user, pass: payload.userpassv.pass, olduser: payload.oldusername }
+            console.log('received data: ', payload);
+            dbhandler.setAll(payload)
+                .then(value => {
+                    if (value === true) {
+                        res.send('ok');
+                    } else {
+                        res.send('false');
+                    }
+                })
+                .catch(err => {
+                    res.send('false');
+                });
+            break;
+        default:
+            res.send('unknown query sent')
+            break;
+
+    }
+});
+
+
+app.get('/logout', (req, res) => {
+
+    req.session.destroy();
+    res.redirect('/login')
+
 });
 
 io.on('connection', (socket) => {
-    console.log('New Client Joined');
 
-    socket.on('add-to-session', (data) => {
-        console.log('client requested, add-to-session')
-        const elem = { socket: socket, link: genRanLink(), owner: socket };
-        sockets.push(elem);
-
-        socket.emit('alotted-session', { owner: elem.socket.id, link: elem.link });
-        console.log('total sockets: ', sockets.length);
-    })
-
-    socket.on('disconnect', () => {
-        console.log("Client Disconnected");
-        for (let i = 0; i < sockets.length; i++) {
-            if (sockets[i].socket === socket) {
-                sockets.splice(i, 1);
-                break;
-            }
-        }
-        console.log('total sockets: ', sockets.length);
-
-    })
 })
 
 http.listen(HTTP_PORT, '0.0.0.0', () => {

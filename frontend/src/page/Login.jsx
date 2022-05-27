@@ -38,7 +38,7 @@ function Login() {
             xhr.open('POST', '/login');
 
             xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4) {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
                     const payload = JSON.parse(xhr.responseText);
                     switch (payload.status) {
                         case 'redirect':

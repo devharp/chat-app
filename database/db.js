@@ -19,15 +19,17 @@ function createUser(payload) {
 
     return 'ok';
 }
-function validateUser(payload) {
+
+function validateUser(user, pass) {
     const promise = new Promise((resolve, reject) => {
 
         let response = -1;
-        if (payload === undefined) {
+        if (user === undefined, pass === undefined) {
             resolve(response);
+            return;
         }
 
-        db.all(`SELECT * from users where user="${payload.user}" AND pass="${payload.pass}"`, (error, rows) => {
+        db.all(`SELECT * from users where user="${user}" AND pass="${pass}"`, (error, rows) => {
             if (error) {
                 reject(error);
                 return;
@@ -37,10 +39,82 @@ function validateUser(payload) {
                 response = 1;
                 resolve(response);
             }
+            if (rows.length === 0) {
+                reject(false);
+            }
         });
     });
     return promise;
 
+}
+
+function getUser(username) {
+    return new Promise((resolve, reject) => {
+        db.all(`select user from users where user='${username}'`, (err, rows) => {
+            if (err) { reject(err); return; }
+            if (rows.length !== 1) { reject('no or multi user found found'); return; }
+            resolve(rows[0]);
+            return;
+        });
+    });
+}
+
+function getPass(username) {
+    return new Promise((resolve, reject) => {
+        db.all(`select pass from users where user='${username}'`, (err, rows) => {
+            if (err) { reject(err); return; }
+            if (rows.length !== 1) { reject('no or multi user found found'); return; }
+            resolve(rows[0]);
+            return;
+        });
+    });
+}
+
+function getKnownMails(user) {
+    return new Promise((resolve, reject) => {
+        db.all(`select kmails from users where user='${user}'`, (err, rows) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            if (rows.length !== 1) {
+                reject('no or multi user found found');
+                return;
+            }
+            resolve(rows[0]);
+            return;
+        });
+    });
+}
+
+function setKnownMails(user, kmails) {
+    // update users set kmails='hello' where user='devharp';
+    return new Promise((resolve, reject) => {
+        db.run(`update users set kmails='${kmails}' where user='${user}'`, err => {
+            if (err) {
+                console.log('db: failed to save kmails');
+                reject(err);
+                return;
+            }
+            console.log(`db: saved kmails to user === ${user}`);
+            resolve(true);
+            return;
+        });
+    });
+}
+
+function setAll(value) {
+    return new Promise((resolve, reject) => {
+        db.run(`update users set kmails='${value.kmails}', user='${value.user}', pass='${value.pass}' where user='${value.olduser}'`, err => {
+            if (err) {
+                console.log('db: failed to save kmails');
+                reject(err);
+                return;
+            }
+            resolve(true);
+            return;
+        });
+    });
 }
 
 function genRanHex(len) {
@@ -52,4 +126,4 @@ function genRanHex(len) {
     return value;
 }
 
-module.exports = { createUser, validateUser };
+module.exports = { createUser, validateUser, getKnownMails, setKnownMails, getUser, getPass, setAll };
