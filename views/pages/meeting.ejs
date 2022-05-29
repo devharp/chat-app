@@ -28,13 +28,21 @@
         body {
             font-family: sans-serif;
         }
+        
+        #videos .video {
+            height: 100px;
+            width: 100px;
+            background-color: black;
+        }
     </style>
 </head>
 
 <body>
-    <h1 class="">
-        Hello world!
-    </h1>
+    <div class="" id="app">
+        <div class="" id="videos">
+            <video class="video" id="my-vid" autoplay></video>
+        </div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.5/dist/peerjs.min.js"></script>
     <script>
@@ -77,6 +85,8 @@
     <script>
         const username = '<%= username %>';
         const password = '<%= password %>';
+        const link = window.location.pathname.replace('/', '');
+
         const peer = new Peer({
             config: {
                 'iceServers': new IceServers().getList()
@@ -88,7 +98,20 @@
             peer.on('open', (conn) => {
                 console.log('here: ', peer.id);
                 try {
-                    init();
+                    navigator.mediaDevices.getUserMedia({
+                            audio: false,
+                            video: {
+                                height: 100,
+                                width: 100
+                            }
+                        })
+                        .then(stream => {
+                            init(stream);
+                            document.getElementById('my-vid').srcObject = stream;
+                        })
+                        .catch(err => {
+                            console.error(err)
+                        });
                 } catch (error) {
                     console.error(error);
                 }
@@ -96,13 +119,116 @@
         });
 
 
-        function init() {
-            const link = window.location.pathname.replace('/', '');
+        function init(stream) {
             socket.emit('add-to-session', {
                 link,
                 username,
                 password,
                 peer: peer.id
+            });
+
+            socket.on('update-peers', () => {
+                console.log('updated peers list');
+                socket.emit('get-peers', {
+                    link
+                });
+            });
+            socket.on('peers-list', payload => {
+
+                console.log('peers list here: ');
+                console.log(payload);
+                const videos = document.getElementById('videos');
+
+                const videos_list = videos.getElementsByClassName('video');
+                let oldpeers = [];
+                for (let i = 0; i < videos_list.length; i++) {
+                    const e = videos_list[i];
+                    const id = e.getAttribute('id');
+                    if (id === 'my-vid') {
+                        oldpeers.push(id);
+                    } else {
+                        oldpeers.push(id);
+                    }
+                }
+
+                let addpeers = [];
+                let delpeers = [];
+
+                for (let i = 0; i < payload.length; i++) {
+                    let found = false;
+                    for (let j = 0; j < oldpeers.length; j++) {
+                        if (payload[i] === oldpeers[j]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        addpeers.push(payload[i]);
+                    }
+                }
+
+                for (let i = 0; i < oldpeers.length; i++) {
+                    let found = false;
+                    for (let j = 0; j < payload.length; j++) {
+                        if (oldpeers[i] === payload[j]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        if (oldpeers[i] !== undefined) {
+                            if (oldpeers[i] !== peer.id && oldpeers[i] !== 'my-vid') {
+                                delpeers.push(oldpeers[i]);
+                            }
+                        }
+                    }
+                }
+
+                if (addpeers.length > 0) {
+                    for (let i = 0; i < addpeers.length; i++) {
+                        const e = addpeers[i];
+                        let videlem = document.createElement('video');
+                        videlem.setAttribute('id', e);
+                        videlem.setAttribute('class', 'video');
+                        if (e !== peer.id) {
+                            const calle = peer.call(e, stream);
+                            peer.on('call', call => {
+                                call.answer(stream);
+                                call.on('stream', rmstream => {
+                                    const id = call.peer;
+                                    const rmvelem = document.getElementById(call.peer);
+                                    rmvelem.srcObject = rmstream;
+                                    rmvelem.onloadeddata = (eee) => {
+                                        rmvelem.play();
+                                    }
+                                });
+                            });
+                            videos.appendChild(videlem);
+                        }
+                    }
+                }
+
+                if (delpeers.length > 0) {
+                    console.log('peers to deleted: ', delpeers);
+                    for (let i = 0; i < delpeers.length; i++) {
+                        const e = delpeers[i];
+                        const f = document.getElementById(e);
+                        if (f !== null) {
+                            f.remove();
+                        }
+                    }
+                }
+
+
+
+                // for (let i = 0; i < videos_list.length; i++) {
+                //     const e = videos_list[i];
+                //     console.log(e.getAttribute('id'));
+                // }
+            });
+
+            socket.emit('get-peers', {
+                link
             });
         }
     </script>

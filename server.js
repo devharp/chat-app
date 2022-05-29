@@ -136,7 +136,27 @@ app.post('/meeting', auth, (req, res) => {
     try {
         const payload = JSON.parse(req.body);
         console.log('received for the meeting:\n', payload);
-        res.send({ status: '-1' })
+        if (payload.link === '') {
+            res.send({ status: 'meeting-found', redirect: '/' + genRanLink() });
+        } else {
+            console.log('here: ', payload.link);
+            const match = /^([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/.exec(payload.link);
+            console.log(match);
+            if (match !== null) {
+                if (match[0] === payload.link) {
+
+                    res.send({ status: 'meeting-found', redirect: '/' + payload.link });
+                } else {
+
+                    res.send({ status: 'meeting-notfound' })
+
+                }
+
+            } else {
+
+                res.send({ status: 'meeting-notfound' })
+            }
+        }
     } catch (error) {
         console.error(error);
         res.send({ status: '-1' })
@@ -240,17 +260,13 @@ io.on('connection', (socket) => {
                 if (v === 1) {
                     if (/^([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/.exec(payload.link)[0] === payload.link) {
 
-                        meetinghandler.joincreateSession(payload.username, payload.link);
-                        meetinghandler.addMemberToSession({ socket, peer: payload.peer }, payload.link);
+                        meetinghandler.addUser({ socket, peer: payload.peer }, payload.link);
+                        meetinghandler.show();
 
-                        const session = meetinghandler.getSession(payload.link);
-
-                        console.log('session info:\n', { link: session.link, creator: session.creator }, '\nmembers:\n');
-                        for (let i = 0; i < session.members.length; i++) {
-                            const e = session.members[i];
-                            console.log({ socket: e.socket.id, peer: e.peer });
-                        }
-
+                        const nodes = meetinghandler.getUsers(payload.link);
+                        nodes.map(e => {
+                            e.socket.emit('update-peers');
+                        });
                     }
                 }
             })
@@ -259,8 +275,30 @@ io.on('connection', (socket) => {
             });
     });
 
+    socket.on('get-peers', payload => {
+        if (payload.link !== null) {
+            if (/^([0-9|a-z]{3,4})-([0-9|a-z]{3,4})-([0-9|a-z]{3,4})$/.exec(payload.link)[0] === payload.link) {
+                const nodes = meetinghandler.getUsers(payload.link);
+                let peers = [];
+                nodes.map(e => { peers.push(e.peer) });
+                nodes.map(e => {
+                    e.socket.emit('peers-list', peers);
+                });
+            }
+        }
+    });
+
     socket.on('disconnect', () => {
-        meetinghandler.deleteMemberFromSession(socket.id);
+        const link = meetinghandler.getUser(socket).link;
+
+        meetinghandler.deleteUser(socket);
+        meetinghandler.show();
+
+        const nodes = meetinghandler.getUsers(link);
+        nodes.map(e => {
+            e.socket.emit('update-peers');
+        });
+
     });
 })
 
@@ -269,7 +307,7 @@ http.listen(HTTP_PORT, '0.0.0.0', () => {
 })
 
 function genRanHex(len) {
-    const charset = 'abcdef0123456789';
+    const charset = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let value = '';
     for (let i = 0; i < len; i++) {
         value += charset[parseInt(Math.random() * charset.length)];

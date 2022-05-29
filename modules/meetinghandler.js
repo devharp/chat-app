@@ -1,89 +1,70 @@
-let sessions = []
+let nodes = []
 
-function joincreateSession(creator, link) {
+function addUser({ socket, peer }, lnk) {
+    let link = lnk;
+    if (link === '') {
+        link = genRanLink();
+    }
     let found = false;
-    let members = [];
-    for (let i = 0; i < sessions.length; i++) {
-        const e = sessions[i].link;
-        if (e === link) {
+    for (let i = 0; i < nodes.length; i++) {
+        const e = nodes[i];
+        if (e.socket.id === socket.id) {
             found = true;
+            nodes[i].peer = peer;
+            nodes[i].link = link;
             break;
         }
     }
-    if (found) {
-        // sessions.push({ creator, link });
-        return link;
-    } else {
-        let newlink = link;
-        if (link === null) {
-            newlink = genRanLink();
-        }
-        sessions.push({ creator, link: newlink, members });
-        return newlink;
+    if (!found) {
+        nodes.push({ socket, peer, link });
     }
-
 }
 
-function addMemberToSession(ids, link) {
-    for (let i = 0; i < sessions.length; i++) {
-        const e = sessions[i].link;
-        if (e === link) {
-            const members = sessions[i].members;
-            let mfound = false;
-            for (let j = 0; j < members.length; j++) {
-                const f = members[j];
-                if (ids.socket.id === f.socket.id) {
-                    sessions[i].members[j].peer = ids.peer;
-                    mfound = true;
-                }
-            }
-            if (!mfound) {
-                sessions[i].members.push(ids);
-            }
+function deleteUser(socket) {
+
+    for (let i = 0; i < nodes.length; i++) {
+        const e = nodes[i];
+        if (e.socket.id === socket.id) {
+            nodes.splice(i, 1);
             break;
         }
     }
 }
 
-function deleteMemberFromSession(socketid) {
-    for (let i = 0; i < sessions.length; i++) {
-        const e = sessions[i].members;
-        let mfound = false;
-        for (let j = 0; j < e.length; j++) {
-            const f = e[j];
-            if (f.socket.id === socketid) {
-                sessions[i].members.splice(j, 1);
-                mfound = true;
-                break;
-            }
-        }
-        if (mfound) {
-            break;
+function getUser(socket) {
+    let user;
+    for (let i = 0; i < nodes.length; i++) {
+        const e = nodes[i];
+        if (e.socket.id === socket.id) {
+            user = e;
+            return user;
         }
     }
 }
 
-function deleteSession(link) {
-    for (let i = 0; i < sessions.length; i++) {
-        const e = sessions[i].link;
-        if (e === link) {
-            sessions.splice(i, 1);
-            break;
-        }
-    }
+function getAllNodes() {
+    return nodes;
 }
 
-function getSession(link) {
-    for (let i = 0; i < sessions.length; i++) {
-        const e = sessions[i].link;
-        if (e === link) {
-            return sessions[i];
+function getUsers(link) {
+    let tempnodes = [];
+    nodes.map(e => {
+        if (e.link === link) {
+            tempnodes.push(e);
         }
-    }
+    });
+    return tempnodes;
 }
+
+function show() {
+    console.log('---x---x---x---\nSession info:');
+    nodes.map(e => { console.log({ socket: e.socket.id, peer: e.peer, link: e.link }) });
+    console.log('---x---x---x---')
+}
+
 
 function genRanHex(len) {
-    const charset = 'abcdef0123456789';
+    const charset = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let value = '';
     for (let i = 0; i < len; i++) {
         value += charset[parseInt(Math.random() * charset.length)];
@@ -96,4 +77,4 @@ function genRanLink() {
     return String(genRanHex(lim[parseInt(Math.random() * lim.length)]) + '-' + genRanHex(lim[parseInt(Math.random() * lim.length)]) + '-' + genRanHex(lim[parseInt(Math.random() * lim.length)]))
 }
 
-module.exports = { joincreateSession, getSession, deleteSession, addMemberToSession, deleteMemberFromSession }
+module.exports = { addUser, deleteUser, getUser, getUsers, getAllNodes, show };
